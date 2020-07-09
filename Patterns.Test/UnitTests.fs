@@ -36,7 +36,7 @@ let ``Complex sequences are round-tripped correctly`` () =
 // If the code doesn't compile, you've probably messed up
 // your data-type.
 
-(* // BEGINNING OF COMMENTED SECTION
+ // BEGINNING OF COMMENTED SECTION
 
 // to convert from a list of cells to a textual form
 let fromMatch = Option.map fromCells
@@ -97,7 +97,7 @@ module PatternMatch =
     doMatch "xxbwwwb" (Exactly (3, UnknownP)) |> shouldEqual None
     doMatch "xx" (Exactly (2, UnknownP)) |> shouldEqual (Some "..")
     doMatch "xx" (Exactly (3, UnknownP)) |> shouldEqual None
-
+    
   [<Test>]
   let ``A FewerThan pattern must match fewer items than its number`` () =
     doMatch "" (FewerThan (5, UnknownP)) |> shouldEqual (Some "")
@@ -109,7 +109,7 @@ module PatternMatch =
   [<Test>]
   let ``You cannot match fewer than 0 things`` () =
     doMatch "." (FewerThan (0, UnknownP)) |> shouldEqual None
-
+(*
   [<Test>]
   let ``A Sequence pattern matches a series of patterns`` () =
     doMatch "wbwbb" (Sequence []) |> shouldEqual (Some "")
