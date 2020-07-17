@@ -109,7 +109,7 @@ module PatternMatch =
   [<Test>]
   let ``You cannot match fewer than 0 things`` () =
     doMatch "." (FewerThan (0, UnknownP)) |> shouldEqual None
-(*
+
   [<Test>]
   let ``A Sequence pattern matches a series of patterns`` () =
     doMatch "wbwbb" (Sequence []) |> shouldEqual (Some "")
@@ -149,7 +149,7 @@ module PatternMatch =
   let ``EndOfCells matches the end of an input`` () =
     doMatch "" EndOfCells |> shouldEqual (Some "")
     doMatch "!" EndOfCells |> shouldEqual None
-
+(*
   [<Test>]
   let ``We can match between 1 and n using a combination of patterns`` () =
     let between a b pattern = Sequence [Exactly (a, pattern); FewerThan (b-a+1, pattern)]
@@ -258,4 +258,4 @@ module Map =
     doMap "bw.w.wb" pattern delete |> shouldEqual ".w."
     doMap "bw.w.wb" pattern double |> shouldEqual "bwbw.w.wbwb"
 
-*) // END OF COMMENTED SECTION
+ *)// END OF COMMENTED SECTION

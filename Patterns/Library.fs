@@ -38,19 +38,15 @@ let fromCells v =
         | x::rest -> fCells rest (str+x)
     fCells v ""
 
-let changer x = 
-    match x with 
-    | BlackP -> "b"
-    | WhiteP -> "w"
-    | UnknownP -> "."
-    | _ -> ""
-
-let func cells pattern =
-    let mpho = changer pattern
-    let ans = List.exists (fun el -> el=mpho) cells
-    match ans with
-    | true -> Some [mpho]
-    | false -> None
+let rec changed xs ys = 
+    match xs with
+    | [] -> ys
+    | x::rest -> 
+        match x with
+        | BlackP -> changed rest (ys@["b"])
+        | WhiteP -> changed rest (ys@["w"])
+        | UnknownP -> changed rest (ys@["."])
+        | _ -> failwith "Not implemented"
 
 let rec zom pattern cells (xs:string list) count= 
     match cells,(xs.Length=count) with
@@ -71,29 +67,66 @@ let oom pattern cells count rest =
         | true -> Some mpho
         | false -> None
     | "fewer" -> 
-        let mpho = zom pattern cells [] (count-1)
-        match mpho.Length < count with
-        | true -> Some mpho
+        match count>0 with
+        | true -> 
+            let mpho = zom pattern cells [] (count-1)
+            match mpho.Length<count with
+            | true -> Some mpho
+            | false -> None
         | false -> None
     | "exactly" ->
         let mpho = zom pattern cells [] count
-        match mpho.Length=count with
+        match mpho.Length = count with
         | true -> Some mpho
         | false -> None
+    | _ -> failwith "Not implemented"
+
+let rec seq cells pattern lst = 
+    match cells,pattern with
+    | _, [] -> lst
+    | x::xrest,y::yrest -> seq xrest yrest (lst@[x])
+
+let seqChecker cells pattern = 
+    let mpho = seq cells (changed pattern []) []
+    match mpho = (changed pattern []) with
+    | true -> Some mpho
+    | false -> None
+
+let anyChecker cells pattern = 
+    match cells with
+    | [] -> None
+    | x::rest ->
+        match x with
+        | "b" -> oom BlackP cells 1 "exactly"
+        | "w" -> oom WhiteP cells 1 "exactly"
+        | "." -> oom UnknownP cells 1 "exactly"
+        | _ -> failwith "Not implemented"
+
+let rec checkPattern cells pattern = 
+    match pattern with
+    | BlackP | WhiteP | UnknownP ->oom pattern cells 1 "exactly"
+    | ZeroOrMore a -> oom a cells 0 "more"
+    | OneOrMore a -> oom a cells 1 "more"
+    | Exactly (a, b) -> oom b cells a "exactly"
+    | FewerThan (a,b) -> oom b cells a "fewer"
+    | Sequence a -> seqChecker cells a
+    | Either (a,b) ->
+        match (oom a cells 1 "exactly"),(oom b cells 1 "exactly") with
+        | Some a, _ -> Some a 
+        | None, Some b -> Some b
+        | None, None -> None
+    | Anything -> anyChecker cells pattern
+    | EndOfCells ->
+        match cells with
+        | [] -> Some []
+        | _ -> None
 
 let patternMatch pattern cells = 
     let l = fromCells cells |> toCells
-    match pattern with
-    | BlackP | WhiteP | UnknownP ->func l pattern 
-    | ZeroOrMore a -> oom a l 0 "more"
-    | OneOrMore a -> oom a l 1 "more"
-    | Exactly (a, b) -> oom b l a "exactly"
-    | FewerThan (a,b) -> 
-        match a>0 with
-        | true -> oom b l a "fewer"
-        | false -> None
-    | _ -> None
+    checkPattern l pattern
 
 let find pattern cells = failwith "Not implemented"
 
-let map func pattern cells = failwith "Not implemented"
+let map func pattern cells = //failwith "Not implemented"
+    let l = fromCells cells |> toCells
+    List.map (func) l
